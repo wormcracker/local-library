@@ -1,0 +1,257 @@
+:root {
+  --background-color: #0e0f0f;
+  --text-color: white;
+  --secondary-text-color: #aaa;
+  --card-bg: #171819;
+  --border-radius: 12px;
+  --button-hover: #e60000;
+  --scrollbar-track: #2f2f2f;
+  --scrollbar-thumb: #4e4e4e;
+  --scrollbar-thumb-hover: #7d7d7d;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: var(--background-color);
+  color: var(--text-color);
+  text-align: center;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 20px;
+}
+
+.category-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 18px;
+  padding-top: 18px;
+}
+
+.header {
+  display: flex;
+  padding: 0;
+  margin: 0 auto;
+  justify-content: end;
+  align-items: center;
+  max-width: 1800px;
+  margin-top: 22px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 12px;
+  z-index: 1000;
+}
+
+.header a {
+  font-size: 0.9rem;
+  margin-left: 12px;
+  text-decoration: none;
+  transition: color 0.3s;
+  color: var(--secondary-text-color);
+  background: var(--card-bg);
+  padding: 6px 14px;
+  border-radius: var(--border-radius);
+  border: 4px solid var(--background-color);
+}
+
+.title {
+  font-size: 1.5rem;
+  color: #f0f0f0;
+}
+
+.files-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 28px;
+  width: 100%;
+  max-width: 1800px;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  text-align: center;
+  word-break: break-word;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.card.focused {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
+}
+
+.image-container {
+  cursor: pointer;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.image-container img:hover {
+  transform: scale(1.05);
+}
+
+.movie-detail-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+}
+
+.movie-detail-container a {
+  font-size: 1rem;
+  color: #f0f0f0;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.movie-detail-container p {
+  font-size: 0.85rem;
+  color: var(--secondary-text-color);
+}
+
+.edit-button {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--text-color);
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  text-decoration: none;
+  top: 8px;
+  left: 8px;
+  transform: translate(0, 0) rotate(135deg);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
+}
+
+.card:hover .edit-button {
+  opacity: 1;
+  visibility: visible;
+}
+
+#moviePopup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80vw;
+  height: 80vh;
+  background: rgba(0, 0, 0, 0.95);
+  color: #fff;
+  padding: 60px 20px 20px;
+  border-radius: var(--border-radius);
+  overflow-y: auto;
+  z-index: 1000;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+#moviePopup .card {
+  max-height: 450px;
+}
+
+#moviePopup h4 {
+  position: absolute;
+  top: 12px;
+  left: 22px;
+  font-weight: 600;
+  font-size: 16px;
+  background: var(--card-bg);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: var(--border-radius);
+}
+
+#moviePopup button {
+  position: absolute;
+  font-weight: 600;
+  font-size: 16px;
+  background: var(--card-bg);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+}
+
+#moviePopup .close-button {
+  top: 12px;
+  right: 22px;
+}
+
+#moviePopup .clear-button {
+  top: 12px;
+  right: 110px;
+}
+
+#moviePopup button:hover {
+  background: var(--button-hover);
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: var(--border-radius);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: var(--border-radius);
+  border: 2px solid var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}

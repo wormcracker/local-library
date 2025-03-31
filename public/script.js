@@ -1,5 +1,5 @@
 // Your API_KEY
-const API_KEY = "_paste_your_api_key_here";
+const API_KEY = "_paste_your_api_here";
 
 // Function to extract title from filename // also add if needed
 function extractTitle(filename) {
@@ -8,7 +8,7 @@ function extractTitle(filename) {
     .replace(/\b(19|20)\d{2}\b.*/g, "") // Remove year and everything after
     .replace(/[\.\-_\()]/g, " ") // Replace dots, dashes, underscores with spaces
     .replace(
-      /\b(1080p|720p|480p|BluRay|BRRip|WEB-DL|AMZN|DUAL|DDP5.1|H.264|x264|DD5.1|ESub|Biz|org|mp4|Hindi|English|Korean|Esubs)\b/gi,
+      /\b(1080p|720p|480p|BluRay|BRRip|WEB-DL|AMZN|DUAL|DDP5.1|H.264|x264|DD5.1|ESub|MoviesMod|mkvCinemas|Biz|org|mp4|Hindi|English|Korean|Esubs)\b/gi,
       "",
     ) // Remove unwanted tags
     .trim();
@@ -23,6 +23,28 @@ function playFile(filePath) {
   })
     .then((response) => response.json())
     .then((data) => console.log(data))
+    .catch((error) => console.error("Error:", error));
+}
+
+// Delete file with confirmation
+function deleteFile(filePath, fileName) {
+  if (!confirm(`Delete File: ${fileName} ?`)) {
+    return; // Cancel deletion if the user clicks "No"
+  }
+
+  fetch("/delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ filePath }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.error) {
+        alert(`Error: ${data.error}`);
+      } else {
+        location.reload();
+      }
+    })
     .catch((error) => console.error("Error:", error));
 }
 
@@ -52,13 +74,36 @@ function getFromCache(title) {
   return cacheData.data;
 }
 
+// Toast message
+function showToast(message, type = "info", duration = 3000) {
+  const toastContainer = document.getElementById("toast-container");
+
+  // Create toast element
+  const toast = document.createElement("div");
+  toast.classList.add("toast", `toast-${type}`);
+  toast.innerText = message;
+
+  // Append to container
+  toastContainer.appendChild(toast);
+
+  // Remove toast after duration
+  setTimeout(() => {
+    toast.classList.add("fade-out");
+    setTimeout(() => toast.remove(), 500);
+  }, duration);
+}
+
+// Example usage:
+// showToast("File deleted successfully!", "success");
+// showToast("Error deleting file!", "error");
+
 // Function to fetch movie data from IMDb API with caching
 function fetchMovieData(title, allData = false) {
   return new Promise((resolve, reject) => {
     // Check if data is in cache
     const cachedData = getFromCache(title);
     if (!allData && cachedData) {
-      console.log("Fetching from cache:", title);
+      // console.log("Fetching from cache:", title);
       resolve(cachedData);
       return;
     }
@@ -209,6 +254,15 @@ function defaultCard(card, cleanedTitle, name, path) {
   originalName.textContent = name;
   movieDetailContainer.appendChild(originalName);
 
+  const deleteMode = document.createElement("p");
+  deleteMode.classList.add("delete-button");
+  deleteMode.title = "Delete";
+  deleteMode.textContent = "🗑️";
+  movieDetailContainer.appendChild(deleteMode);
+  deleteMode.onclick = () => {
+    deleteFile(path, name);
+  };
+
   const editMode = document.createElement("p");
   editMode.classList.add("edit-button");
   editMode.title = "Edit";
@@ -216,18 +270,22 @@ function defaultCard(card, cleanedTitle, name, path) {
   movieDetailContainer.appendChild(editMode);
   // Adding an event listener
   editMode.addEventListener("click", async function () {
+    showToast("Editing metadata of file Wait....", "info", 1500);
     try {
       const movieData = await fetchMovieData(cleanedTitle, true);
       console.log("Fetched Movie Data:", movieData); // Debugging output
 
       // Ensure movie data exists
       if (movieData) {
+        showToast("Sucessfully Found Data.", "success");
         openPopupWindow(movieData, cleanedTitle, name);
       } else {
-        alert("No data found.");
+        showToast("Error No Data Found ", "error");
+        console.error("No Data found", error);
       }
     } catch (error) {
-      console.error("Error fetching movie data for popup:", error);
+      showToast("Error No Data Found ", "error");
+      console.error("No Data found", error);
     }
   });
 
@@ -280,6 +338,15 @@ function createCard(card, movieData, filePath, fileName, title) {
   movieDetailContainer.appendChild(movieCast);
 
   if (filePath) {
+    const deleteMode = document.createElement("p");
+    deleteMode.classList.add("delete-button");
+    deleteMode.title = "Delete";
+    deleteMode.textContent = "🗑️";
+    movieDetailContainer.appendChild(deleteMode);
+    deleteMode.onclick = () => {
+      deleteFile(filePath, fileName);
+    };
+
     const editMode = document.createElement("p");
     editMode.classList.add("edit-button");
     editMode.title = "Edit";
@@ -287,17 +354,21 @@ function createCard(card, movieData, filePath, fileName, title) {
     movieDetailContainer.appendChild(editMode);
     // Adding an event listener
     editMode.addEventListener("click", async function () {
+      showToast("Editing metadata of file Wait....", "info", 1500);
       try {
         const movieData = await fetchMovieData(title, true);
         console.log("Fetched Movie Data:", movieData); // Debugging output
 
         // Ensure movie data exists
         if (movieData) {
+          showToast("Sucessfully Found Data.", "success");
           openPopupWindow(movieData, title, fileName);
         } else {
-          console.log("No movie data found!");
+          showToast("Error No Data Found ", "error");
+          console.error("No Data found", error);
         }
       } catch (error) {
+        showToast("Error No Data Found ", "error");
         console.error("Error fetching movie data for popup:", error);
       }
     });

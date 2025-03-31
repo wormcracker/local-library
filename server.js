@@ -1,10 +1,10 @@
 // change the video player detail (defaul os: macOs and default player: MPV)
-const player = "open -a mpv --args -fs";
+const player = "open -a mpv -F --args -fs";
 
-// Available files directories // Make sure to change according to your directory path
+// Available files directories // change according to your directory
 const directories = {
-  English: "/Volumes/External_Main_Drive/Movies/English/",
-  Japanese: "/Volumes/External_Main_Drive/Movies/Japanese/",
+  hindi: "/Volumes/External_Main_Drive/Movies/Hindi/",
+  nonHindi: "/Volumes/External_Main_Drive/Movies/NonHindi/",
   old: "/Volumes/External_Main_Drive/Movies/Old/",
   tvShows: "/Volumes/External_Main_Drive/Series/",
 };
@@ -72,6 +72,32 @@ app.post("/play", express.json(), (req, res) => {
       return res.status(500).json({ error: "Failed to launch player" });
     }
   });
+});
+
+// API to play a file with MPV
+app.post("/delete", express.json(), (req, res) => {
+  const { filePath } = req.body;
+
+  if (!filePath || !fs.existsSync(filePath)) {
+    return res.status(400).json({ error: "Invalid file path" });
+  }
+
+  try {
+    const stats = fs.statSync(filePath);
+
+    if (stats.isFile()) {
+      // Delete file
+      fs.unlinkSync(filePath);
+      return res.json({ message: "File deleted successfully" });
+    } else if (stats.isDirectory()) {
+      // Delete folder recursively
+      fs.rmSync(filePath, { recursive: true, force: true });
+      return res.json({ message: "Folder deleted successfully" });
+    }
+  } catch (error) {
+    console.error("Error deleting:", error);
+    return res.status(500).json({ error: "Failed to delete file/folder" });
+  }
 });
 
 app.listen(PORT, () => {

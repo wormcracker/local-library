@@ -6,7 +6,7 @@ function extractTitle(filename) {
   return filename
     .replace(/\.[sS]?\d{1,2}[eE]?\d{0,2}.*/g, "") // Remove season/episode info
     .replace(/\b(19|20)\d{2}\b.*/g, "") // Remove year and everything after
-    .replace(/[\.\-_\()]/g, " ") // Replace dots, dashes, underscores with spaces
+    .replace(/[\.\-_\(\)\?]/g, " ")
     .replace(
       /\b(1080p|720p|480p|BluRay|BRRip|WEB-DL|AMZN|DUAL|DDP5.1|H.264|x264|DD5.1|ESub|MoviesMod|mkvCinemas|Biz|org|mp4|Hindi|English|Korean|Esubs)\b/gi,
       "",
@@ -77,6 +77,7 @@ function getFromCache(title) {
 // Toast message
 function showToast(message, type = "info", duration = 3000) {
   const toastContainer = document.getElementById("toast-container");
+  toastContainer.innerHTML = "";
 
   // Create toast element
   const toast = document.createElement("div");
@@ -178,6 +179,39 @@ function openPopupWindow(movieData, title, fileName) {
   heading.textContent = `FileName: ${fileName}`;
   popup.appendChild(heading);
 
+  // search
+  const searchContainer = document.createElement("div");
+  const search = document.createElement("input");
+  const searchbtn = document.createElement("button");
+  searchContainer.classList.add("search-container");
+  searchContainer.appendChild(search);
+  searchContainer.appendChild(searchbtn);
+  search.placeholder = "Title Name...";
+  searchbtn.innerText = "search";
+  searchbtn.onclick = async () => {
+    if (search.value == "") {
+      showToast("Empty value", "error");
+      return;
+    }
+    const searchtitle = search.value;
+    showToast(`Wait for title | ${searchtitle}`, "info");
+    try {
+      const movieData = await fetchMovieData(searchtitle, true);
+
+      // Ensure movie data exists
+      if (movieData) {
+        showToast("Sucessfully Found Data.", "success");
+        openPopupWindow(movieData, title, fileName);
+      } else {
+        showToast("Error No Data Found ", "error");
+        console.error("No Data found", error);
+      }
+    } catch (error) {
+      showToast("Error No Data Found ", "error");
+      console.error("Error fetching movie data for popup:", error);
+    }
+  };
+
   // Close button
   const closeButton = document.createElement("button");
   closeButton.innerText = "close";
@@ -201,6 +235,7 @@ function openPopupWindow(movieData, title, fileName) {
   // Append the close button
   popup.appendChild(closeButton);
   popup.appendChild(makeDefault);
+  popup.appendChild(searchContainer);
 
   // Extract and loop through movie data
   const movies = movieData || [];
@@ -294,28 +329,26 @@ function defaultCard(card, cleanedTitle, name, path) {
 
 // Creating Dynamic Card
 function createCard(card, movieData, filePath, fileName, title) {
-  if (movieData.i?.imageUrl) {
-    const imageContainer = document.createElement("div");
-    imageContainer.classList.add("image-container");
-    card.appendChild(imageContainer);
+  const imageContainer = document.createElement("div");
+  imageContainer.classList.add("image-container");
+  card.appendChild(imageContainer);
 
-    const moviePoster = document.createElement("img");
-    moviePoster.src = movieData.i.imageUrl || "assets/poster.jpg"; // Use default if missing
-    moviePoster.alt = movieData.l;
-    moviePoster.title = "Click to select";
+  const moviePoster = document.createElement("img");
+  moviePoster.src = movieData.i?.imageUrl || "assets/poster.jpg"; // Use default if missing
+  moviePoster.alt = movieData.l;
+  moviePoster.title = "Click to select";
 
-    // If the image fails to load, set default
-    moviePoster.onerror = () => {
-      moviePoster.src = "assets/poster.jpg";
+  // If the image fails to load, set default
+  moviePoster.onerror = () => {
+    moviePoster.src = "assets/poster.jpg";
+  };
+
+  imageContainer.appendChild(moviePoster);
+
+  if (filePath) {
+    imageContainer.onclick = () => {
+      playFile(filePath);
     };
-
-    imageContainer.appendChild(moviePoster);
-
-    if (filePath) {
-      imageContainer.onclick = () => {
-        playFile(filePath);
-      };
-    }
   }
 
   const movieDetailContainer = document.createElement("div");
@@ -357,7 +390,6 @@ function createCard(card, movieData, filePath, fileName, title) {
       showToast("Editing metadata of file Wait....", "info", 1500);
       try {
         const movieData = await fetchMovieData(title, true);
-        console.log("Fetched Movie Data:", movieData); // Debugging output
 
         // Ensure movie data exists
         if (movieData) {

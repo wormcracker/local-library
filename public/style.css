@@ -250,6 +250,26 @@ html {
   right: 110px;
 }
 
+.search-container {
+  position: absolute;
+  top: 12px;
+  right: 287px;
+}
+.search-container input {
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: var(--border-radius);
+  background: var(--card-bg);
+  color: #fff;
+  outline: none;
+}
+.search-container input::placeholder {
+  font-weight: 600;
+}
+.search-container button {
+  left: 208px;
+}
+
 #moviePopup button:hover {
   background: var(--button-hover);
 }

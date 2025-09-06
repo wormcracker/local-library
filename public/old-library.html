@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Old Library</title>
+    <link rel="icon" href="assets/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="style/style.css" />
+    <script type="module" src="js-old-library/main.js" defer></script>
+  </head>
+  <body>
+    <div id="fallback-ui" style="display: none"></div>
+    <div class="heading"></div>
+    <select id="typeFilter" class="feature-select feature-all">
+      <option value="all">Favourites (all)</option>
+      <option value="tv">TV Shows</option>
+      <option value="mv">Movies</option>
+      <option value="un">Unwatched</option>
+    </select>
+    <div class="container" id="fileContainer"></div>
+    <div id="toast-container"></div>
+    <div class="feature">
+      <a href="/" class="feature-all param-link">Home</a>
+    </div>
+    <div id="loadingScreen" class="loading-screen">
+      <div class="spinner"></div>
+      <h4>Loading your movies...</h4>
+    </div>
+    <script>
+      // Fallback UI for direct file access
+      function showFallbackUI() {
+        const fallback = document.getElementById("fallback-ui");
+        fallback.style.display = "flex";
+        fallback.innerHTML = `
+      <div style="
+        background: rgba(20,20,20,0.97);
+        color: #fff;
+        border-radius: 18px;
+        padding: 48px 36px;
+        max-width: 520px;
+        margin: 80px auto;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+        text-align: center;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+      ">
+        <img src="assets/favicon.png" alt="Local Library" style="width:96px;border-radius:18px;box-shadow:0 2px 8px #0003;">
+        <h2 style="color:#ffc107;">Local Library Not Running</h2>
+        <p style="font-size:1.1rem;color:#eee;">
+          It looks like you opened <b>old-library.html</b> directly.<br>
+          <span style="color:#ffb300;">This app requires a local server to function.</span>
+        </p>
+        <ol style="text-align:left;max-width:420px;margin:0 auto 0 0;color:#ccc;font-size:1rem;">
+          <li>Install <b>Node.js</b> (if not already installed).</li>
+          <li>Open a terminal in this folder.</li>
+          <li>Run <code style="background:#222;padding:2px 6px;border-radius:4px;">npm install</code></li>
+          <li>Start the server with <code style="background:#222;padding:2px 6px;border-radius:4px;">node server.js</code></li>
+          <li>Open <b>http://localhost:3001/old-library.html</b> in your browser.</li>
+        </ol>
+        <p style="color:#aaa;font-size:0.95rem;">
+          For more help, see the <a href="https://github.com/wormcracker/local-library#installation" target="_blank" style="color:#17a2b8;text-decoration:underline;">installation guide</a>.
+        </p>
+      </div>
+    `;
+        // Hide the rest of the app
+        document
+          .querySelectorAll("body > *:not(#fallback-ui)")
+          .forEach((el) => (el.style.display = "none"));
+      }
+
+      // Detect file:// protocol or missing server
+      if (location.protocol === "file:") {
+        document.addEventListener("DOMContentLoaded", showFallbackUI);
+      }
+    </script>
+  </body>
+</html>
